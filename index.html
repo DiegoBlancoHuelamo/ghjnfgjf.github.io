@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Audio Player</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #008cff;
+        }
+        h1 {
+            color: #FFD700; /* Amarillo */
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .carousel {
+            position: relative;
+            width: 80%; /* Ajustable */
+            max-width: 400px;
+            height: auto; /* Mantener proporción */
+            aspect-ratio: 1; /* Proporción cuadrada */
+            overflow: hidden;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            transition: left 0.5s ease-in-out;
+        }
+        .carousel img.active {
+            left: 0;
+        }
+        .carousel img.previous {
+            left: -100%;
+        }
+        .carousel img.next {
+            left: 100%;
+        }
+        .carousel-buttons {
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+        }
+        .carousel-buttons button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .audio-player {
+            width: 80%; /* Ajustable */
+            max-width: 400px;
+            background-color: #800080; /* Fondo morado */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            color: #fff;
+            text-align: center;
+        }
+        .audio-player button {
+            background-color: #FFD700; /* Amarillo */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .audio-player input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+            -webkit-appearance: none;
+            background: #FFD700; 
+            height: 5px;
+            border-radius: 5px;
+            outline: none;
+        }
+        .audio-player input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Media Queries para pantallas más pequeñas */
+        @media (max-width: 768px) {
+            .carousel {
+                width: 90%; /* Más pequeño para tablets/móviles */
+            }
+            .audio-player {
+                width: 90%; /* Reducir tamaño del reproductor */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .carousel {
+                width: 100%; /* Ocupa toda la pantalla */
+            }
+            .audio-player {
+                width: 100%; /* Ocupa toda la pantalla */
+                padding: 15px; /* Reducir padding */
+            }
+            .audio-player button {
+                padding: 8px 15px; /* Botones más pequeños */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <img src="foto1.jpg" class="active" alt="Photo 1">
+        <img src="foto2.jpg" alt="Photo 2">
+        <img src="foto3.jpg" alt="Photo 3">
+        <img src="foto5.jpg" alt="Photo 5">
+        <img src="foto6.jpg" alt="Photo 6">
+        <img src="foto7.jpg" alt="Photo 7">
+        <img src="foto8.jpg" alt="Photo 8">
+        <img src="foto9.jpg" alt="Photo 9">
+        <div class="carousel-buttons">
+            <button id="prev">❮</button>
+            <button id="next">❯</button>
+        </div>
+    </div>
+    <h1>Felicidades Meja</h1>
+    <div class="audio-player">
+        <button id="play-pause">Play</button>
+        <input type="range" id="progress-bar" value="0" min="0" max="100">
+        <audio id="audio" src="audio.mp3"></audio>
+    </div>
+    <script>
+        const images = document.querySelectorAll('.carousel img');
+        const prevButton = document.getElementById('prev');
+        const nextButton = document.getElementById('next');
+        let currentIndex = 0;
+
+        function showImage(index) {
+            images.forEach((img, i) => {
+                img.classList.remove('active', 'previous', 'next');
+                if (i === index) {
+                    img.classList.add('active');
+                } else if (i === (index - 1 + images.length) % images.length) {
+                    img.classList.add('previous');
+                } else if (i === (index + 1) % images.length) {
+                    img.classList.add('next');
+                }
+            });
+        }
+
+        prevButton.addEventListener('click', () => {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            showImage(currentIndex);
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % images.length;
+            showImage(currentIndex);
+        });
+
+        const audio = document.getElementById('audio');
+        const playPauseButton = document.getElementById('play-pause');
+        const progressBar = document.getElementById('progress-bar');
+
+        // Play/Pause functionality
+        playPauseButton.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playPauseButton.textContent = 'Pausa';
+            } else {
+                audio.pause();
+                playPauseButton.textContent = 'Play';
+            }
+        });
+
+        // Update progress bar as audio plays
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.value = progress;
+        });
+
+        // Seek functionality
+        progressBar.addEventListener('input', () => {
+            const seekTime = (progressBar.value / 100) * audio.duration;
+            audio.currentTime = seekTime;
+        });
+    </script>
+</body>
+</html>
